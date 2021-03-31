@@ -137,7 +137,8 @@ def get_can_signals(CP):
   elif CP.carFingerprint == CAR.FIT:
     signals += [("CAR_GAS", "GAS_PEDAL_2", 0),
                 ("MAIN_ON", "SCM_BUTTONS", 0),
-                ("BRAKE_HOLD_ACTIVE", "VSA_STATUS", 0)]
+                ("BRAKE_HOLD_ACTIVE", "VSA_STATUS", 0),
+                ("IMPERIAL_UNIT", "HUD_SETTING", 0)]
   elif CP.carFingerprint == CAR.HRV:
     signals += [("CAR_GAS", "GAS_PEDAL", 0),
                 ("MAIN_ON", "SCM_BUTTONS", 0),
@@ -313,7 +314,7 @@ class CarState(CarStateBase):
         ret.brakePressed = True
 
     # TODO: discover the CAN msg that has the imperial unit bit for all other cars
-    self.is_metric = not cp.vl["HUD_SETTING"]['IMPERIAL_UNIT'] if self.CP.carFingerprint in (CAR.CIVIC, CAR.RIDGELINE) else False
+    self.is_metric = not cp.vl["HUD_SETTING"]['IMPERIAL_UNIT'] if self.CP.carFingerprint in (CAR.CIVIC, CAR.RIDGELINE, CAR.FIT) else False
 
     if self.CP.carFingerprint in HONDA_BOSCH:
       ret.stockAeb = bool(cp_cam.vl["ACC_CONTROL"]["AEB_STATUS"] and cp_cam.vl["ACC_CONTROL"]["ACCEL_COMMAND"] < -1e-5)
