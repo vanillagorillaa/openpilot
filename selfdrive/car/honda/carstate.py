@@ -314,7 +314,7 @@ class CarState(CarStateBase):
         ret.brakePressed = True
 
     # TODO: discover the CAN msg that has the imperial unit bit for all other cars
-    self.is_metric = not cp.vl["HUD_SETTING"]['IMPERIAL_UNIT'] if self.CP.carFingerprint in (CAR.CIVIC, CAR.RIDGELINE, CAR.FIT) else False
+    self.is_metric = not cp.vl["LOCK_STATUS"]['IMPERIAL_UNIT'] if self.CP.carFingerprint in (CAR.PILOT) else False
 
     if self.CP.carFingerprint in HONDA_BOSCH:
       ret.stockAeb = bool(cp_cam.vl["ACC_CONTROL"]["AEB_STATUS"] and cp_cam.vl["ACC_CONTROL"]["ACCEL_COMMAND"] < -1e-5)
