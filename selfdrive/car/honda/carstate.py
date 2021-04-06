@@ -128,7 +128,8 @@ def get_can_signals(CP):
                 ("EPB_STATE", "EPB_STATUS", 0)]
   elif CP.carFingerprint == CAR.ACURA_ILX:
     signals += [("CAR_GAS", "GAS_PEDAL_2", 0),
-                ("MAIN_ON", "SCM_BUTTONS", 0)]
+                ("MAIN_ON", "SCM_BUTTONS", 0),
+                ("IMPERIAL_UNIT", "SCM_BUTTONS", 0)]
   elif CP.carFingerprint in (CAR.CRV, CAR.CRV_EU, CAR.ACURA_RDX, CAR.PILOT_2019):
     signals += [("MAIN_ON", "SCM_BUTTONS", 0)]
   elif CP.carFingerprint == CAR.RIDGELINE:
@@ -320,6 +321,8 @@ class CarState(CarStateBase):
       self.is_metric = not cp.vl["HUD_SETTING"]['IMPERIAL_UNIT']
     elif self.CP.carFingerprint in (CAR.PILOT, CAR.ODYSSEY):
       self.is_metric = not cp.vl["LOCK_STATUS"]['IMPERIAL_UNIT']
+    elif self.CP.carFingerprint == CAR.ACURA_ILX:
+      self.is_metric = not cp.vl["SCM_BUTTONS"]['IMPERIAL_UNIT']
     else:
       self.is_metric = False
 
