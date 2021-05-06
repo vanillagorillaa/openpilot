@@ -152,6 +152,10 @@ routes: dict = {
     'carFingerprint': HONDA.RIDGELINE,
     'enableCamera': True,
   },
+  "69efe97e70c1db84|2021-03-21--00-44-11": {
+    'carFingerprint': HONDA.CLARITY,
+    'enableCamera': True,
+  },
   "6fe86b4e410e4c37|2020-07-22--16-27-13": {
     'carFingerprint': HYUNDAI.HYUNDAI_GENESIS,
     'enableCamera': True,
