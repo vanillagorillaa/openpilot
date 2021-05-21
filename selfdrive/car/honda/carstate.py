@@ -188,7 +188,11 @@ def get_can_signals(CP):
                 ("EPB_STATE", "EPB_STATUS", 0),
                 ("BRAKE_ERROR_1", "BRAKE_ERROR", 0),
                 ("BRAKE_ERROR_2", "BRAKE_ERROR", 0)]
-    checks += [("BRAKE_ERROR", 100)]
+        checks += [
+      ("BRAKE_ERROR", 100),
+      ("EPB_STATUS", 50),
+      ("GAS_PEDAL_2", 100),
+    ]
 
   # add gas interceptor reading if we are using it
   if CP.enableGasInterceptor:
