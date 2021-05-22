@@ -1317,9 +1317,9 @@ FW_VERSIONS = {
     (Ecu.electricBrakeBooster, 0x18da2bf1, None): [
         b'46114-TRW-A020\x00\x00',
     ],
-    (Ecu.fwdCamera, 0x18dab5f1, None): [
-        b'36161-TRW-A040\x00\x00',
-    ],
+    #(Ecu.fwdCamera, 0x18dab5f1, None): [
+    #    b'36161-TRW-A040\x00\x00',
+    #],
     (Ecu.gateway, 0x18daeff1, None): [
         b'38897-TRW-A010\x00\x00',
     ],
