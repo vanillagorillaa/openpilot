@@ -53,18 +53,25 @@ class Controls:
       self.pm = messaging.PubMaster(['sendcan', 'controlsState', 'carState',
                                      'carControl', 'carEvents', 'carParams'])
 
+    self.camera_packets = ["roadCameraState", "driverCameraState"]
+    if TICI:
+      self.camera_packets.append("wideRoadCameraState")
+
     self.sm = sm
     if self.sm is None:
       ignore = ['driverCameraState', 'managerState'] if SIMULATION else None
       self.sm = messaging.SubMaster(['deviceState', 'pandaState', 'modelV2', 'liveCalibration',
                                      'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
-                                     'roadCameraState', 'driverCameraState', 'managerState', 'liveParameters', 'radarState'],
+                                     'managerState', 'liveParameters', 'radarState'] + self.camera_packets,
                                      ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan'])
 
     self.can_sock = can_sock
     if can_sock is None:
       can_timeout = None if os.environ.get('NO_CAN_TIMEOUT', False) else 100
       self.can_sock = messaging.sub_sock('can', timeout=can_timeout)
+
+    if TICI:
+      self.log_sock = messaging.sub_sock('androidLog')
 
     # wait for one pandaState and one CAN packet
     print("Waiting for CAN messages...")
@@ -179,7 +186,7 @@ class Controls:
     if self.sm['deviceState'].freeSpacePercent < 7:
       # under 7% of space free no enable allowed
       self.events.add(EventName.outOfSpace)
-    if self.sm['deviceState'].memoryUsagePercent  > 90:
+    if self.sm['deviceState'].memoryUsagePercent > 65:
       self.events.add(EventName.lowMemory)
 
     # Alert if fan isn't spinning for 5 seconds
@@ -246,8 +253,28 @@ class Controls:
       self.events.add(EventName.deviceFalling)
     if log.PandaState.FaultType.relayMalfunction in self.sm['pandaState'].faults:
       self.events.add(EventName.relayMalfunction)
-    if self.sm['longitudinalPlan'].fcw:
+    if self.sm['longitudinalPlan'].fcw or (self.enabled and self.sm['modelV2'].meta.hardBrakePredicted):
       self.events.add(EventName.fcw)
+
+    if TICI and self.enable_lte_onroad:
+      logs = messaging.drain_sock(self.log_sock, wait_for_one=False)
+      messages = []
+      for m in logs:
+        try:
+          messages.append(m.androidLog.message)
+        except UnicodeDecodeError:
+          pass
+
+      for err in ["ERROR_CRC", "ERROR_ECC", "ERROR_STREAM_UNDERFLOW", "APPLY FAILED"]:
+        for m in messages:
+          if err not in m:
+            continue
+
+          csid = m.split("CSID:")[-1].split(" ")[0]
+          evt = {"0": EventName.wideRoadCameraError, "1": EventName.roadCameraError,
+                 "2": EventName.driverCameraError}.get(csid, None)
+          if evt is not None:
+            self.events.add(evt)
 
     # TODO: fix simulator
     if not SIMULATION:
@@ -256,7 +283,7 @@ class Controls:
           (not TICI or self.enable_lte_onroad):
           # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
           self.events.add(EventName.noGps)
-      if not self.sm.all_alive(['roadCameraState', 'driverCameraState']):
+      if not self.sm.all_alive(self.camera_packets):
         self.events.add(EventName.cameraMalfunction)
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
