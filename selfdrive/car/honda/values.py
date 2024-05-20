@@ -10,7 +10,6 @@ from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request,
 
 Ecu = car.CarParams.Ecu
 VisualAlert = car.CarControl.HUDControl.VisualAlert
-GearShifter = car.CarState.GearShifter
 
 
 class CarControllerParams:
@@ -60,6 +59,7 @@ class HondaFlags(IntFlag):
   NIDEC_ALT_PCM_ACCEL = 32
   NIDEC_ALT_SCM_MESSAGES = 64
 
+  CANFD_CAR = 128
 
 # Car button codes
 class CruiseButtons:
@@ -71,7 +71,7 @@ class CruiseButtons:
 
 # CRUISE_SETTINGS
   DISTANCE = 3
-  LKAS = 1  
+  LKAS = 1
 
 
 class CruiseSettings:
@@ -189,13 +189,12 @@ class CAR(Platforms):
     CarSpecs(mass=3338.8 * CV.LB_TO_KG, wheelbase=2.5, centerToFrontRatio=0.5, steerRatio=16.71, tireStiffnessFactor=0.82),
     dbc_dict('acura_rdx_2020_can_generated', None),
   )
-  ACURA_INTEGRA = HondaBoschPlatformConfig(
-    [HondaCarDocs("Acura Integra 2024", "All")],
-    CarSpecs(mass=3338.8 * CV.LB_TO_KG, wheelbase=2.5, centerToFrontRatio=0.5, steerRatio=16.71, tireStiffnessFactor=0.82),
-    dbc_dict('honda_civic_ex_2022_can_generated', None),
-    flags=HondaFlags.BOSCH_RADARLESS,
+  HONDA_PILOT_4G = HondaBoschPlatformConfig(
+    [HondaCarDocs("Honda Pilot 2023", "All")],
+    CarSpecs(mass=4278 * CV.LB_TO_KG, wheelbase=2.86, centerToFrontRatio=0.428, steerRatio=16.0, tireStiffnessFactor=0.444),  # as spec
+    dbc_dict('honda_pilot_2023_can_generated', None),
+    flags=HondaFlags.CANFD_CAR | HondaFlags.BOSCH_ALT_BRAKE,
   )
-
   # Nidec Cars
   ACURA_ILX = HondaNidecPlatformConfig(
     [HondaCarDocs("Acura ILX 2016-19", "AcuraWatch Plus", min_steer_speed=25. * CV.MPH_TO_MS)],
@@ -313,22 +312,22 @@ FW_QUERY_CONFIG = FwQueryConfig(
   # Note that we still attempt to match with them when they are present
   non_essential_ecus={
     Ecu.programmedFuelInjection: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_CRV_5G,
-                                  CAR.HONDA_PILOT],
-    Ecu.transmission: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_CRV_5G, CAR.HONDA_PILOT],
-    Ecu.srs: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_2022, CAR.HONDA_E],
-    Ecu.eps: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_2022, CAR.HONDA_E],
+                                  CAR.HONDA_PILOT, CAR.HONDA_PILOT_4G],
+    Ecu.transmission: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_CRV_5G, CAR.HONDA_PILOT, CAR.HONDA_PILOT_4G],
+    Ecu.srs: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_2022, CAR.HONDA_E, CAR.HONDA_PILOT_4G],
+    Ecu.eps: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_2022, CAR.HONDA_E, CAR.HONDA_PILOT_4G],
     Ecu.vsa: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_CRV_5G, CAR.HONDA_CRV_HYBRID,
-              CAR.HONDA_E, CAR.HONDA_INSIGHT],
+              CAR.HONDA_E, CAR.HONDA_INSIGHT, CAR.HONDA_PILOT_4G],
     Ecu.combinationMeter: [CAR.ACURA_ILX, CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_FIT,
-                           CAR.HONDA_HRV, CAR.HONDA_CRV_5G, CAR.HONDA_CRV_HYBRID, CAR.HONDA_E, CAR.HONDA_INSIGHT, CAR.HONDA_ODYSSEY_CHN],
+                           CAR.HONDA_HRV, CAR.HONDA_CRV_5G, CAR.HONDA_CRV_HYBRID, CAR.HONDA_E, CAR.HONDA_INSIGHT, CAR.HONDA_ODYSSEY_CHN, CAR.HONDA_PILOT_4G],
     Ecu.gateway: [CAR.ACURA_ILX, CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CIVIC_2022, CAR.HONDA_FIT,
                   CAR.HONDA_FREED, CAR.HONDA_HRV, CAR.HONDA_RIDGELINE, CAR.HONDA_CRV_5G, CAR.HONDA_CRV_HYBRID, CAR.HONDA_E, CAR.HONDA_INSIGHT,
-                  CAR.HONDA_ODYSSEY, CAR.HONDA_ODYSSEY_CHN, CAR.HONDA_PILOT],
-    Ecu.electricBrakeBooster: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CRV_5G],
+                  CAR.HONDA_ODYSSEY, CAR.HONDA_ODYSSEY_CHN, CAR.HONDA_PILOT, CAR.HONDA_PILOT_4G],
+    Ecu.electricBrakeBooster: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CIVIC_BOSCH, CAR.HONDA_CRV_5G, CAR.HONDA_PILOT_4G],
     # existence correlates with transmission type for Accord ICE
-    Ecu.shiftByWire: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CRV_HYBRID, CAR.HONDA_E, CAR.HONDA_INSIGHT, CAR.HONDA_PILOT],
+    Ecu.shiftByWire: [CAR.ACURA_RDX_3G, CAR.HONDA_ACCORD, CAR.HONDA_CRV_HYBRID, CAR.HONDA_E, CAR.HONDA_INSIGHT, CAR.HONDA_PILOT, CAR.HONDA_PILOT_4G],
     # existence correlates with trim level
-    Ecu.hud: [CAR.HONDA_ACCORD],
+    Ecu.hud: [CAR.HONDA_ACCORD, CAR.HONDA_PILOT_4G],
   },
   extra_ecus=[
     # The only other ECU on PT bus accessible by camera on radarless Civic
@@ -349,6 +348,7 @@ HONDA_NIDEC_ALT_PCM_ACCEL = CAR.with_flags(HondaFlags.NIDEC_ALT_PCM_ACCEL)
 HONDA_NIDEC_ALT_SCM_MESSAGES = CAR.with_flags(HondaFlags.NIDEC_ALT_SCM_MESSAGES)
 HONDA_BOSCH = CAR.with_flags(HondaFlags.BOSCH)
 HONDA_BOSCH_RADARLESS = CAR.with_flags(HondaFlags.BOSCH_RADARLESS)
+HONDA_CANFD_CAR = CAR.with_flags(HondaFlags.CANFD_CAR)
 
 
 DBC = CAR.create_dbc_map()
