@@ -5,7 +5,7 @@ from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL
 from opendbc.can.packer import CANPacker
 from openpilot.selfdrive.car.honda import hondacan
-from openpilot.selfdrive.car.honda.values import CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_RADARLESS, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
+from openpilot.selfdrive.car.honda.values import CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_RADARLESS, HONDA_CANFD_CAR, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
 from openpilot.selfdrive.car.interfaces import CarControllerBase
 from openpilot.selfdrive.controls.lib.drive_helpers import rate_limit
 
@@ -208,9 +208,9 @@ class CarController(CarControllerBase):
       setting = CruiseButtons.NONE
       if pcm_cancel_cmd:
         cruise = CruiseButtons.CANCEL
-      elif self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS and CC.cruiseControl.resume:
+      elif self.CP.carFingerprint not in (HONDA_BOSCH_RADARLESS | HONDA_CANFD_CAR) and CC.cruiseControl.resume:
         cruise = CruiseButtons.RES_ACCEL
-      elif self.CP.carFingerprint in HONDA_BOSCH_RADARLESS and CC.enabled and self.frame % 4 == 0:
+      elif self.CP.carFingerprint in (HONDA_BOSCH_RADARLESS | HONDA_CANFD_CAR) and CC.enabled and self.frame % 4 == 0:
         # Send buttons to the camera when engaged. Only send the LKAS button to turn off stock LKAS off so it can't disengage cruise.
         # Priority: pcm_cancel > user > auto resume > turn off lkas > none/idle
         cruise = CruiseButtons.NONE

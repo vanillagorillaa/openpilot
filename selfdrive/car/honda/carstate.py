@@ -8,7 +8,7 @@ from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.honda.hondacan import CanBus, get_cruise_speed_conversion
 from openpilot.selfdrive.car.honda.values import CAR, DBC, STEER_THRESHOLD, HONDA_BOSCH, \
                                                  HONDA_NIDEC_ALT_SCM_MESSAGES, HONDA_BOSCH_RADARLESS, \
-                                                 HondaFlags, GearShifter
+                                                 HondaFlags
 from openpilot.selfdrive.car.interfaces import CarStateBase
 
 TransmissionType = car.CarParams.TransmissionType
@@ -201,7 +201,7 @@ class CarState(CarStateBase):
         ret.cruiseState.nonAdaptive = cp_cam.vl["ACC_HUD"]["CRUISE_CONTROL_LABEL"] != 0
 
       if not self.CP.openpilotLongitudinalControl:
-        self.scm_buttons = cp.vl["SCM_BUTTONS"] if self.CP.carFingerprint in HONDA_BOSCH_RADARLESS else {}
+        self.scm_buttons = cp.vl["SCM_BUTTONS"] if self.CP.carFingerprint in (HONDA_BOSCH_RADARLESS | HONDA_CANFD_CAR) else {}
         # ACC_HUD is on camera bus on radarless cars
         acc_hud = cp_cam.vl["ACC_HUD"] if self.CP.carFingerprint in HONDA_BOSCH_RADARLESS else cp.vl["ACC_HUD"]
         ret.cruiseState.nonAdaptive = acc_hud["CRUISE_CONTROL_LABEL"] != 0
