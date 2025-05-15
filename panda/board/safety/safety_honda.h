@@ -171,6 +171,11 @@ static void honda_rx_hook(const CANPacket_t *to_push) {
     cruise_button_prev = button;
   }
 
+  // Regen paddle check
+  if (addr == 0x1A3) {
+    regen_braking = ((GET_BYTE(to_push, 1) >> 4) & 0x07U) != 0U;
+  }
+
   // user brake signal on 0x17C reports applied brake from computer brake on accord
   // and crv, which prevents the usual brake safety from working correctly. these
   // cars have a signal on 0x1BE which only detects user's brake being applied so
