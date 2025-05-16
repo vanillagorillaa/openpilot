@@ -194,7 +194,7 @@ class CarState(CarStateBase):
 
     # Regen braking is braking
     if self.CP.carFingerprint == CAR.HONDA_CLARITY:
-      ret.regenBraking = pt_cp.vl["GEARBOX"]["REGEN_STRENGTH"] != 0
+      ret.regenBraking = cp.vl["GEARBOX"]["REGEN_STRENGTH"] != 0
 
     ret.gas = cp.vl["POWERTRAIN_DATA"]["PEDAL_GAS"]
     ret.gasPressed = ret.gas > 1e-5
