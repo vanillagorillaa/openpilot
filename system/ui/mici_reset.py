@@ -77,7 +77,7 @@ class Reset(Scroller):
     self._reset_failed_page = ResetFailedPage()
 
     self._reset_button = BigConfirmationCircleButton("reset &\nerase", gui_app.texture("icons_mici/settings/device/uninstall.png", 70, 70),
-                                                     self._start_reset, red=True)
+                                                     self._start_reset, exit_on_confirm=False, red=True)
     self._cancel_button = BigConfirmationCircleButton("cancel", gui_app.texture("icons_mici/setup/cancel.png", 64, 64),
                                                       gui_app.request_close, exit_on_confirm=False)
     self._reboot_button = BigConfirmationCircleButton("reboot\ndevice", gui_app.texture("icons_mici/settings/device/reboot.png", 64, 70),
@@ -105,6 +105,8 @@ class Reset(Scroller):
       self._reset_button,
     ])
 
+    gui_app.add_nav_stack_tick(self._nav_stack_tick)
+
   def _do_erase(self):
     if PC:
       return
@@ -123,9 +125,7 @@ class Reset(Scroller):
     self._resetting_page.set_shown_callback(self._do_erase)
     gui_app.push_widget(self._resetting_page)
 
-  def _update_state(self):
-    super()._update_state()
-
+  def _nav_stack_tick(self):
     if self._reset_failed:
       self._reset_failed = False
       gui_app.pop_widgets_to(self, lambda: gui_app.push_widget(self._reset_failed_page))
