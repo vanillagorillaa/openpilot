@@ -13,11 +13,12 @@ from openpilot.common.basedir import BASEDIR
 
 DIRS = ['cereal', 'openpilot']
 EXTS = ['.png', '.py', '.ttf', '.capnp', '.json', '.fnt', '.mo', '.po']
+EXCLUDE = ['selfdrive/assets/training', 'third_party/raylib/raylib_repo/examples']
 INTERPRETER = '/usr/bin/env python3'
 
 
 def copy(src, dest):
-  if any(src.endswith(ext) for ext in EXTS):
+  if any(src.endswith(ext) for ext in EXTS) and not any(exc in src for exc in EXCLUDE):
     shutil.copy2(src, dest, follow_symlinks=True)
 
 
